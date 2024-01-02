@@ -13,11 +13,20 @@ func main() {
     log.SetPrefix("greetings: ")
     log.SetFlags(0)
 
-    message, err := greetings.Hello("")
+    some_names := []string{"Jobe", "Jorry", "Jarry"}
+
+    greeting_maps, err := greetings.Hellos(some_names)
+
+    //message, err := greetings.Hello("Jobe")
     if err != nil {
         log.Fatal(err)
     }
+
+    for k, v := range greeting_maps{
+
+        fmt.Println(fmt.Sprintf("hmm, %s, %s", k, v))
+    }
+
     
     // otherwise,
-    fmt.Println(message)
 }
