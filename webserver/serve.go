@@ -11,6 +11,7 @@ import (
 type Packet struct {
     request http.Request
     response_writer http.ResponseWriter
+    done chan struct{}
 }
 
 func worker(id int, jobs <-chan Packet) {
@@ -22,6 +23,9 @@ func worker(id int, jobs <-chan Packet) {
 
         // Process the request...
         fmt.Fprintln(response_writer, "Request is being processed")
+
+        // Signal we are done 
+        packet.done <- struct{}{}
     }
 }
 
@@ -37,8 +41,12 @@ func main() {
     // HTTP listener (simplified example)
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         fmt.Println("Received request:", r)
-        packet := Packet{request: *r, response_writer: w}
+        done := make(chan struct{})
+        packet := Packet{
+            request: *r, response_writer: w, done: done,
+            }
         jobs <- packet // Send the request to the channel
+        <- done
     })
 
     http.ListenAndServe(":8080", nil)
